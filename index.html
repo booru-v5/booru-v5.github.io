@@ -66,6 +66,10 @@ button{cursor:pointer;background:none;border:none;padding:0}
 }
 .brand{font-size:16px;margin:0;font-weight:800;letter-spacing:.4px;flex:0 0 auto;
   color:var(--ink);white-space:nowrap}
+/* 제목은 '처음 화면으로' 버튼이다. 링크처럼 꾸미지 않고 커서·호버로만 알린다. */
+.brand button{font:inherit;color:inherit;letter-spacing:inherit;padding:0;cursor:pointer}
+.brand button:hover{color:var(--accent)}
+.brand button:active{opacity:.7}
 .shell{display:block;padding:0 12px}
 .listcol{max-width:920px;margin:0 auto}
 .aside{display:none}
@@ -554,6 +558,26 @@ button{cursor:pointer;background:none;border:none;padding:0}
 
 
 /* ---------- toast / footer / loader ---------- */
+/* 맨 위로 — 어느 정도 내려갔을 때만 나타난다. 맨 위에서는 쓸 일이 없고
+   내용만 가리기 때문. 조용한 흰 원에 얇은 화살표 하나. */
+.totop{
+  position:fixed;z-index:60;
+  right:calc(14px + env(safe-area-inset-right));
+  bottom:calc(16px + env(safe-area-inset-bottom));
+  width:46px;height:46px;border-radius:50%;
+  background:rgba(255,255,255,.94);backdrop-filter:blur(6px);
+  border:1px solid var(--card-bd);box-shadow:0 2px 6px rgba(22,34,52,.10),0 6px 18px rgba(22,34,52,.10);
+  color:var(--ink2);display:flex;align-items:center;justify-content:center;
+  opacity:0;visibility:hidden;transform:translateY(8px);
+  transition:opacity .16s,transform .16s,visibility .16s;
+}
+.totop.on{opacity:1;visibility:visible;transform:none}
+.totop svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2.1;
+  stroke-linecap:round;stroke-linejoin:round}
+.totop:hover{color:var(--accent);border-color:#cfe0ff}
+.totop:active{transform:scale(.94)}
+@media (min-width:900px){ .totop{right:calc(24px + env(safe-area-inset-right));bottom:24px} }
+
 #toast{
   position:fixed;left:50%;transform:translateX(-50%) translateY(20px);bottom:calc(22px + env(safe-area-inset-bottom));
   background:#16202c;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;z-index:70;
@@ -590,7 +614,7 @@ footer a:hover{color:var(--ink2)}
      넓은 화면에서는 한 줄에 다 들어가고, 좁아지면 줄바꿈된다. -->
 <header class="topbar" id="topbar">
   <div class="tbin">
-    <h1 class="brand">BOORU V5</h1>
+    <h1 class="brand"><button type="button" id="homeBtn" title="처음 화면으로 — 검색어와 분류를 지웁니다">BOORU V5</button></h1>
     <div class="sbox">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
       <input id="q" type="search" autocomplete="off" autocorrect="off" spellcheck="false"
@@ -650,6 +674,10 @@ footer a:hover{color:var(--ink2)}
 
 </div>
 
+
+<button type="button" id="toTop" class="totop" aria-label="맨 위로">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
 
 <div id="toast"></div>
 
@@ -1136,6 +1164,9 @@ function buildUI(){
     if(e.state && e.state.v === HST) restoreState(e.state);
     else applyHash();                 // state 가 없으면 주소의 태그만이라도
   });
+
+  $('#homeBtn').addEventListener('click', resetHome);
+  $('#toTop').addEventListener('click', scrollToTop);
 
   window.addEventListener('scroll', onScroll, {passive:true});
   /* 모바일 브라우저는 주소창이 나타났다 사라질 때마다 resize 를 쏜다.
@@ -1790,6 +1821,7 @@ function renderWindow(){
 var scrollPending = false;
 function onScroll(){
   markMoving(200);                 // 스크롤이 도는 동안에는 위치 보정을 미룬다
+  syncTopBtn();
   if(scrollPending) return;
   scrollPending = true;
   var run = function(){
@@ -2334,6 +2366,43 @@ function restoreScroll(st){
     if(Math.abs(window.scrollY - want) < 2) break;
   }
 }
+/* ---------- 맨 위로 / 처음 화면으로 ---------- */
+/* 부드러운 스크롤은 쓰지 않는다. 4만 행짜리 가상 목록에서 애니메이션으로 내려가면
+   프레임마다 행을 짓고 실측하고 높이를 고치게 되는데, 그게 지금까지 스크롤이 튀던
+   바로 그 조건이다. 한 번에 0으로 보내고 한 번만 그린다. */
+var TOTOP_AT = 700;                      // 이만큼 내려가면 버튼을 보여 준다
+function syncTopBtn(){
+  var b = document.getElementById('toTop');
+  if(b) b.classList.toggle('on', window.scrollY > TOTOP_AT);
+}
+function scrollToTop(){
+  window.scrollTo(0, 0);
+  lastRange = [-1,-1];
+  if(results.length) renderWindow();
+  pendDelta = 0;                          // 올라가는 도중 쌓인 보정은 버린다
+  syncTopBtn();
+}
+/* 처음 들어왔을 때와 같은 상태인가 — 그렇다면 제목을 눌러도 할 일이 없다 */
+function isInitialView(){
+  return !S.q && S.cat === null && S.group === '' && S.topic === '' &&
+         expanded < 0 && window.scrollY <= 0;
+}
+/* 제목 클릭: '어디를 보고 있는가'만 지우고 '어떻게 보는가'는 남긴다.
+   정렬 순서·성인 태그 토글·흔한 태그 숨기기·패널 보기 방식은 취향이고,
+   특히 성인 토글은 사용자가 동의를 거쳐 켠 값이라 말없이 되돌리면 안 된다. */
+function resetHome(){
+  if(isInitialView()) return false;
+  histReplace();                          // 초기화 직전 화면을 현재 엔트리에 남긴다
+  S.q = ''; $('#q').value = ''; $('#qclear').classList.remove('on');
+  S.cat = null; S.group = ''; S.topic = '';
+  closeFPanel();
+  syncSelects();
+  apply();                                // 패널도 닫히고 목록이 다시 짜인다
+  scrollToTop();
+  histPush(null);                         // 해시를 비우고 새 엔트리 — 뒤로가기로 되돌릴 수 있다
+  return true;
+}
+
 /* 주소의 #tag=... 로 들어온 경우 (공유 링크·새로고침) */
 function applyHash(){
   var m = /^#tag=(.+)$/.exec(location.hash || '');
@@ -2391,6 +2460,9 @@ window.__NAI5 = {
   snapshot: function(){ return snapshot(); },
   restoreState: function(st){ return restoreState(st); },
   applyHash: function(){ return applyHash(); },
+  resetHome: function(){ return resetHome(); },
+  scrollToTop: function(){ return scrollToTop(); },
+  isInitialView: function(){ return isInitialView(); },
   get expandedId(){ return expanded; },
   get stage2Done(){ return rel2Done; },
   get stage2Total(){ return rel2Total; },
