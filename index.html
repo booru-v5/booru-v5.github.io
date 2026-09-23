@@ -1126,6 +1126,10 @@ function buildUI(){
     if(e.key === 'Escape' && !$('#admodal').hidden) closeAdultModal();
   });
 
+  /* 브라우저가 기억해 둔 스크롤 위치를 popstate 뒤에 제멋대로 되돌리면
+     우리가 맞춰 놓은 자리를 덮어쓰며 화면이 튄다. 복원은 우리가 직접 한다. */
+  try{ if('scrollRestoration' in history) history.scrollRestoration = 'manual'; }catch(e){}
+
   /* 뒤로가기/앞으로가기 — 초기 상태는 replaceState 로 현재 엔트리에 얹기만 하고
      스택에 새로 쌓지 않는다. 그래야 첫 화면에서 뒤로가기를 누르면 사이트를 벗어난다. */
   window.addEventListener('popstate', function(e){
