@@ -364,23 +364,28 @@ button{cursor:pointer;background:none;border:none;padding:0}
 .rmain{display:block}
 /* 1행: 한글명 (영문태그 · 게시물수) */
 /* 이름 줄 — 한글명 / 영문명 알약 / 게시물 수. 색은 영문명 알약에만 쓴다. */
+/* 읽히는 순서: 한글 제목 > 영문 태그 > 게시물 수.
+   알약은 보조 정보이므로 굵기·색을 제목보다 확실히 낮춘다.
+   baseline 으로 맞추면 알약의 위아래 여백 때문에 아래로 처져 보여서,
+   한글은 글자가 줄 상자에 고르게 차는 편이라 광학 중심(center)으로 맞춘다. */
 .tline{
-  display:flex;align-items:baseline;flex-wrap:wrap;gap:0 8px;
+  display:flex;align-items:center;flex-wrap:wrap;gap:3px 8px;
   width:100%;text-align:left;padding:0;margin:0 0 6px;
   font-size:18px;line-height:1.35;color:var(--ink);
 }
-.tline .kr{font-weight:800;letter-spacing:-.2px}
+.tline .kr{font-weight:800;letter-spacing:-.2px;line-height:1.35}
 /* 영문 태그와 게시물 수를 알약 하나에 같이 담는다 */
 .tline .en{
   display:inline-flex;align-items:baseline;gap:5px;
-  font-size:13px;font-weight:700;color:var(--accent-ink);letter-spacing:-.2px;
-  background:var(--accent-weak);border-radius:999px;padding:3px 10px;
+  font-size:12.5px;font-weight:500;line-height:1.5;letter-spacing:-.1px;
+  color:#5a7ab0;background:#eef3fa;border:1px solid #e3ebf6;
+  border-radius:999px;padding:2px 10px;
   max-width:100%;overflow-wrap:anywhere;
 }
-.tline .en b{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:700}
-.tline .en i{font-style:normal;opacity:.45;font-weight:400}
-.tline .en em{font-style:normal;font-variant-numeric:tabular-nums;font-weight:600;opacity:.85}
-.tline:hover .en{background:#dbe8ff}
+.tline .en b{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:500;color:#4d6fa8}
+.tline .en i{font-style:normal;color:#aab8cc;font-weight:400}
+.tline .en em{font-style:normal;font-variant-numeric:tabular-nums;font-weight:400;color:var(--ink3)}
+.tline:hover .en{background:#e6eefa;border-color:#d5e2f3}
 .tline .flag{font-size:10.5px;font-weight:800;color:var(--ok);letter-spacing:.3px;
   align-self:center;background:#e8f5ee;border-radius:999px;padding:2px 7px}
 .tline .flag.ren{color:var(--warn);background:var(--warn-bg)}
