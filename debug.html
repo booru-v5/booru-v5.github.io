@@ -370,13 +370,17 @@ button{cursor:pointer;background:none;border:none;padding:0}
   font-size:18px;line-height:1.35;color:var(--ink);
 }
 .tline .kr{font-weight:800;letter-spacing:-.2px}
+/* 영문 태그와 게시물 수를 알약 하나에 같이 담는다 */
 .tline .en{
-  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  display:inline-flex;align-items:baseline;gap:5px;
   font-size:13px;font-weight:700;color:var(--accent-ink);letter-spacing:-.2px;
-  background:var(--accent-weak);border-radius:999px;padding:3px 9px;
+  background:var(--accent-weak);border-radius:999px;padding:3px 10px;
+  max-width:100%;overflow-wrap:anywhere;
 }
+.tline .en b{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:700}
+.tline .en i{font-style:normal;opacity:.45;font-weight:400}
+.tline .en em{font-style:normal;font-variant-numeric:tabular-nums;font-weight:600;opacity:.85}
 .tline:hover .en{background:#dbe8ff}
-.tline .num{font-variant-numeric:tabular-nums;font-size:13px;color:var(--ink3);font-weight:600}
 /* 2행: 분류 경로 — 전부 같은 스타일, 왼쪽 정렬 */
 .path{
   font-size:12px;color:var(--ink3);line-height:1.5;margin:0 0 11px;
@@ -402,7 +406,7 @@ button{cursor:pointer;background:none;border:none;padding:0}
 /* related panel */
 .relp{
   background:var(--sub-bg);border:1px solid #e7eef8;border-radius:12px;
-  padding:11px 12px 12px;margin-top:12px;
+  padding:11px 12px 12px;margin-top:12px;min-width:0;overflow:hidden;
 }
 .relhead{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-bottom:9px}
 .relhead .cnt{font-size:11px;color:var(--ink3);margin-left:auto;font-variant-numeric:tabular-nums;
@@ -417,10 +421,12 @@ button{cursor:pointer;background:none;border:none;padding:0}
 .relfil .rf:hover{border-color:currentColor}
 .relfil .rf.on{background:var(--rfc);color:#fff;border-color:var(--rfc)}
 .relfil .rf.on b{opacity:.85}
-.relgrid{display:grid;grid-template-columns:1fr;gap:5px}
-@media (min-width:620px){ .relgrid{grid-template-columns:1fr 1fr} }
+/* 그리드 칸은 기본이 min-width:auto 라 긴 고정폭 태그명이 칸을 밀어낸다.
+   minmax(0,1fr) 로 눌러 두지 않으면 가로 스크롤이 생긴다. */
+.relgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:5px}
+@media (min-width:620px){ .relgrid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)} }
 /* 관련 태그 — 분류별 그룹 보기 */
-.rgsec{margin-top:9px}
+.rgsec{margin-top:9px;min-width:0}
 .rgsec:first-of-type{margin-top:2px}
 .rghead{
   display:flex;align-items:center;gap:6px;padding:3px 2px 6px;font-size:11.5px;font-weight:800;
@@ -432,18 +438,21 @@ button{cursor:pointer;background:none;border:none;padding:0}
 .rghead .ln{flex:1 1 auto;height:1px;background:var(--line);min-width:8px}
 .ritem{
   display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #e9eef6;
-  border-radius:10px;padding:7px 9px;min-height:46px;
+  border-radius:10px;padding:7px 9px;min-height:46px;min-width:0;
 }
 .ritem:hover{border-color:#d4e0f2}
 /* 어느 분류인지 색 점 하나로 (배지를 늘리지 않는다) */
 .rdot{flex:0 0 auto;width:7px;height:7px;border-radius:50%;background:var(--ink3);opacity:.85}
 .rdot.none{background:#cdd6e2}
 .rtag{flex:1 1 auto;min-width:0;text-align:left;display:flex;flex-direction:column;gap:1px}
+/* 긴 태그명은 잘라내지 말고 줄바꿈한다 — 좁은 화면에서 한 줄에 우겨넣으면
+   퍼센트·건수·이동 버튼이 밀려 나간다. */
 .rtag .rn{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;font-weight:600;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  line-height:1.35;overflow-wrap:anywhere;word-break:break-word;min-width:0}
 .rtag:hover .rn{color:var(--accent)}
-.rtag .rk{font-size:11px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rstat{flex:0 0 auto;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.rtag .rk{font-size:11px;color:var(--ink3);line-height:1.35;overflow-wrap:anywhere;min-width:0}
+.rstat{flex:0 0 auto;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:1px;
+  white-space:nowrap}
 .rpct{font-size:12.5px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
 .rposts{font-size:10.5px;color:var(--ink3);font-variant-numeric:tabular-nums}
 /* 관련 태그 → 본문 항목으로 이동 */
@@ -456,7 +465,7 @@ button{cursor:pointer;background:none;border:none;padding:0}
    overscroll-behavior:contain — 목록 끝에 닿아도 페이지가 딸려 움직이지 않는다. */
 .relbody{
   max-height:min(54vh, 430px);
-  overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
   overflow-anchor:none;padding-right:3px;
 }
 .relbody::-webkit-scrollbar{width:8px}
@@ -488,7 +497,7 @@ button{cursor:pointer;background:none;border:none;padding:0}
   line-height:1;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
 .spclose:hover{background:var(--line2);color:var(--ink)}
 .sidepanel-in .relp{background:var(--card);border:0;border-radius:0;margin-top:0;padding:10px 12px 13px}
-.sidepanel-in .relgrid{grid-template-columns:1fr}
+.sidepanel-in .relgrid{grid-template-columns:minmax(0,1fr)}
 .sidepanel-in .relbody{max-height:calc(100vh - 250px)}
 .row.exp{background:var(--accent-weak);border-radius:8px}
 /* '이동'으로 막 도착한 행을 잠깐 짚어 준다 */
@@ -1763,8 +1772,7 @@ function rowHTML(i){
                     (g !== null ? ' · ' + (g >= 0 ? '+' : '') + (g*100).toFixed(1) + '%' : '');
   var h = '<div class="rcard"><button class="tline" data-act="copy" title="' + esc(tip) + '">';
   if(kr) h += '<span class="kr">' + esc(kr) + '</span>';
-  h += '<span class="en">' + esc(name) + '</span>' +
-       '<span class="num">' + fmt(p5) + '</span>';
+  h += '<span class="en"><b>' + esc(name) + '</b><i>·</i><em>' + fmt(p5) + '</em></span>';
   if(st === 1) h += '<span class="flag">NEW</span>';
   else if(st === 2) h += '<span class="flag ren">이름변경</span>';
   h += '</button>';
@@ -1813,7 +1821,7 @@ function naiRowHTML(k){
   var e = D.nai[k];
   var h = '<div class="rcard"><button class="tline" data-act="copy">' +
           '<span class="kr">' + esc(e[1]) + '</span>' +
-          '<span class="en">' + esc(e[0]) + '</span></button>';
+          '<span class="en"><b>' + esc(e[0]) + '</b></span></button>';
   h += '<div class="path"><span>NAI전용</span><span class="sep">·</span><span>' + esc(e[2]) + '</span></div>';
   h += '<p class="nodesc">단부루에는 없고 NovelAI에서만 쓰는 태그라 게시물 수와 위키가 없습니다.</p></div>';
   return h;
