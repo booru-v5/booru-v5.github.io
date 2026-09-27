@@ -231,10 +231,23 @@ button{cursor:pointer;background:none;border:none;padding:0}
   fill:none;stroke:var(--ink3);stroke-width:2;pointer-events:none}
 #q{padding-left:34px;padding-right:38px;min-width:0}   /* flex 안에서 줄어들 수 있게 */
 @media (max-width:899px){ #q{font-size:16px} }   /* iOS 확대 방지 */
+/* 브라우저가 type=search 에 붙이는 기본 지우기 버튼을 끈다.
+   끄지 않으면 우리가 만든 #qclear 와 겹쳐 X 가 두 개로 보인다.
+   (크롬·사파리·안드로이드 크롬 = -webkit-search-cancel-button,
+    구형 엣지/IE = -ms-clear. 파이어폭스는 기본 버튼을 붙이지 않는다.) */
+#q::-webkit-search-cancel-button,
+#q::-webkit-search-decoration,
+#q::-webkit-search-results-button,
+#q::-webkit-search-results-decoration{-webkit-appearance:none;appearance:none;display:none}
+#q::-ms-clear, #q::-ms-reveal{display:none;width:0;height:0}
 #qclear{position:absolute;right:5px;width:30px;height:30px;border-radius:var(--ctl-r-sm);
   color:var(--ink3);font-size:18px;line-height:1;display:none;align-items:center;justify-content:center}
 #qclear.on{display:flex}
 #qclear:hover{background:var(--line2);color:var(--ink)}
+/* 터치 화면에서는 30px 이 작다. 보이는 크기는 그대로 두고 누를 수 있는 범위만 넓힌다.
+   폭은 38px 까지만 — 더 키우면 옆의 18+ 토글 위로 넘어간다(사이 여백 7px). */
+#qclear::before{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:38px;height:44px}
 
 /* 좁은 화면: 바가 세 줄로 접힌다. 높이를 아끼려고 브랜드 줄을 낮게 잡는다. */
 @media (max-width:899px){
